@@ -1,8 +1,8 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateTransferDto } from './dto/create-transfer.dto';
+import { FilterTransferDto } from './dto/filter-transfer.dto';
 import { PrismaService } from '../prisma/prisma.service';
-import { Transfer } from '@prisma/client';
-import { Prisma } from '@prisma/client';
+import { Transfer, Prisma } from '@prisma/client';
 
 @Injectable()
 export class TransferService {
@@ -18,11 +18,46 @@ export class TransferService {
         },
       });
     } catch (error) {
-      throw new InternalServerErrorException(`Error al crear la transferencia`);
+      throw new InternalServerErrorException(`Error creating transfer`);
     }
   }
 
-  findAll() {
-    return `This action returns all transfer`;
+  async findAll(filterTransferDto: FilterTransferDto) {
+    const { page, limit, customerName } = filterTransferDto;
+    const skip = (page - 1) * limit;
+
+    try {
+      const where: Prisma.TransferWhereInput = {};
+
+      if (customerName) {
+        where.customerName = {
+          contains: customerName
+        };
+      }
+
+      const [transfers, total] = await Promise.all([
+        this.prisma.transfer.findMany({
+          where,
+          skip,
+          take: limit,
+          orderBy: {
+            createdAt: 'desc'
+          }
+        }),
+        this.prisma.transfer.count({ where })
+      ]);
+
+      return {
+        data: transfers,
+        meta: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit)
+        }
+      };
+    } catch (error) {
+      throw new InternalServerErrorException('Error fetching transfers');
+    }
   }
 }

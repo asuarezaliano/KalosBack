@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query } from '@nestjs/common';
 import { TransferService } from './transfer.service';
 import { CreateTransferDto } from './dto/create-transfer.dto';
+import { FilterTransferDto } from './dto/filter-transfer.dto';
 import { Transfer } from '@prisma/client';
 
 @Controller('transfer')
@@ -13,7 +14,7 @@ export class TransferController {
   }
 
   @Get()
-  findAll() {
-    return this.transferService.findAll();
+  findAll(@Query() filterTransferDto: FilterTransferDto) {
+    return this.transferService.findAll(filterTransferDto);
   }
 }

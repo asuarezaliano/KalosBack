@@ -1,6 +1,6 @@
 -- CreateTable
 CREATE TABLE "Transfer" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" TEXT NOT NULL PRIMARY KEY,
     "customerName" TEXT NOT NULL,
     "amount" REAL NOT NULL,
     "currency" TEXT NOT NULL,

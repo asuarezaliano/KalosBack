@@ -18,18 +18,9 @@ enum Currency {
   EUR
 }
 
-model Customer {
-  id        String     @id @default(uuid())
-  name      String
-  transfers Transfer[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-}
-
 model Transfer {
   id           String   @id @default(uuid())
-  customerId   String
-  customer     Customer @relation(fields: [customerId], references: [id])
+  customerName String
   amount       Float
   currency     Currency
   date         DateTime @default(now())

@@ -27,3 +27,21 @@ model Transfer {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
+
+model Analytics {
+  id            String          @id @default("current")
+  totalRevenue  Float          @default(0)
+  transferCount Int            @default(0)
+  byCurrency    CurrencyAmount[]
+  lastUpdated   DateTime       @default(now())
+}
+
+model CurrencyAmount {
+  id          String    @id @default(uuid())
+  currency    Currency
+  amount      Float
+  analytics   Analytics @relation(fields: [analyticsId], references: [id])
+  analyticsId String
+
+  @@unique([analyticsId, currency])
+}

@@ -3,6 +3,7 @@ import { TransferService } from './transfer.service';
 import { CreateTransferDto } from './dto/create-transfer.dto';
 import { FilterTransferDto } from './dto/filter-transfer.dto';
 import { Transfer } from '@prisma/client';
+import { PaginationReturnDto } from '../common/dto/pagination-return.dto';
 
 @Controller('transfer')
 export class TransferController {
@@ -14,7 +15,7 @@ export class TransferController {
   }
 
   @Get()
-  findAll(@Query() filterTransferDto: FilterTransferDto) {
+  findAll(@Query() filterTransferDto: FilterTransferDto): Promise<PaginationReturnDto<Transfer>> {
     return this.transferService.findAll(filterTransferDto);
   }
 }

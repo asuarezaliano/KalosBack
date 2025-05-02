@@ -3,6 +3,7 @@ import { CreateTransferDto } from './dto/create-transfer.dto';
 import { FilterTransferDto } from './dto/filter-transfer.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { Transfer, Prisma } from '@prisma/client';
+import { PaginationReturnDto } from '../common/dto/pagination-return.dto';
 
 @Injectable()
 export class TransferService {
@@ -22,7 +23,7 @@ export class TransferService {
     }
   }
 
-  async findAll(filterTransferDto: FilterTransferDto) {
+  async findAll(filterTransferDto: FilterTransferDto): Promise<PaginationReturnDto<Transfer>> {
     const { page, limit, customerName } = filterTransferDto;
     const skip = (page - 1) * limit;
 

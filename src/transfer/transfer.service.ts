@@ -39,9 +39,7 @@ export class TransferService {
       const where: Prisma.TransferWhereInput = {};
 
       if (customerName) {
-        where.customerName = {
-          contains: customerName
-        };
+        where.customerName = customerName
       }
 
       const [transfers, total] = await Promise.all([

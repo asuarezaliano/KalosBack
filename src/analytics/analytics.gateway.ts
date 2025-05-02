@@ -3,9 +3,10 @@ import {
     WebSocketServer,
     OnGatewayConnection,
     OnGatewayDisconnect,
+    OnGatewayInit,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Currency, Transfer } from '@prisma/client';
 
@@ -14,15 +15,21 @@ import { Currency, Transfer } from '@prisma/client';
     cors: {
         origin: '*',
     },
+    port: 5001
 })
-export class AnalyticsGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
+export class AnalyticsGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, OnModuleInit {
     @WebSocketServer()
     server: Server;
 
+    private readonly logger = new Logger(AnalyticsGateway.name);
     private connectedClients: Set<Socket> = new Set();
     private readonly ANALYTICS_ID = 'current';
 
     constructor(private prisma: PrismaService) { }
+
+    afterInit(server: Server) {
+        this.logger.log(`WebSocket Gateway iniciado en el puerto ${(server.engine as any).port || 3001}`);
+    }
 
     async onModuleInit() {
         const analytics = await this.prisma.analytics.findUnique({
@@ -36,11 +43,13 @@ export class AnalyticsGateway implements OnGatewayConnection, OnGatewayDisconnec
 
     async handleConnection(client: Socket) {
         this.connectedClients.add(client);
+        this.logger.log(`Cliente conectado: ${client.id}`);
         await this.emitAnalytics();
     }
 
     handleDisconnect(client: Socket) {
         this.connectedClients.delete(client);
+        this.logger.log(`Cliente desconectado: ${client.id}`);
     }
 
     private async initializeAnalytics() {

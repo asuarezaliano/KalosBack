@@ -4,20 +4,28 @@ import { FilterTransferDto } from './dto/filter-transfer.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { Transfer, Prisma } from '@prisma/client';
 import { PaginationReturnDto } from '../common/dto/pagination-return.dto';
+import { AnalyticsGateway } from '../analytics/analytics.gateway';
 
 @Injectable()
 export class TransferService {
-  constructor(private prisma: PrismaService) { }
+  constructor(
+    private prisma: PrismaService,
+    private analyticsGateway: AnalyticsGateway,
+  ) { }
 
   async create(createTransferDto: CreateTransferDto): Promise<Transfer> {
     try {
-      return await this.prisma.transfer.create({
+      const transfer = await this.prisma.transfer.create({
         data: {
           customerName: createTransferDto.customerName,
           amount: createTransferDto.amount,
           currency: createTransferDto.currency,
         },
       });
+
+      await this.analyticsGateway.updateAnalytics(transfer);
+
+      return transfer;
     } catch (error) {
       throw new InternalServerErrorException(`Error creating transfer`);
     }
@@ -31,9 +39,7 @@ export class TransferService {
       const where: Prisma.TransferWhereInput = {};
 
       if (customerName) {
-        where.customerName = {
-          contains: customerName
-        };
+        where.customerName = customerName
       }
 
       const [transfers, total] = await Promise.all([

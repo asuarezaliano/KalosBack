@@ -1,8 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, Logger } from '@nestjs/common';
 
 async function bootstrap() {
+  const logger = new Logger('Kalos Backend');
   const app = await NestFactory.create(AppModule);
 
   app.useGlobalPipes(
@@ -14,6 +15,9 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(process.env.PORT ?? 3000);
+  const port = process.env.PORT ?? 5000;
+  await app.listen(port);
+  logger.log(`🚀 HTTP Server started on port ${port}`);
+  logger.log(`📊 WebSocket Server started on port ${Number(port) + 1}`);
 }
 bootstrap();
